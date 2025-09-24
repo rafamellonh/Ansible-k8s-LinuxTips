@@ -1,0 +1,7 @@
+- name: Import provisioning tasks
+  import_tasks: provisioning.yml
+
+- name: Import instances tasks
+  import_tasks: instances.yml
+  tags:
+    - instances
