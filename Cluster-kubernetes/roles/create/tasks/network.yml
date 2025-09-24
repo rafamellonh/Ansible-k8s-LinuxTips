@@ -1,0 +1,41 @@
+- name: Create Network Security Group
+  azure.azcollection.azure_rm_securitygroup:
+    resource_group: "{{ resource_group }}"
+    name: "{{ nsg_name }}"
+    location: "{{ location }}"
+    rules:
+      - name: AllowSSH
+        protocol: Tcp
+        destination_port_range: 22
+        source_address_prefix: "*"
+        source_port_range: "*"
+        access: Allow
+        priority: 1000
+        direction: Inbound    
+    tags: 
+      environment: "QA"
+      App: Kubernetes        
+  register: nsg
+
+- name: Create virtual network
+  azure.azcollection.azure_rm_virtualnetwork:
+    resource_group: "{{ resource_group }}"
+    name: "{{ vnet_name }}"
+    address_prefixes: "{{ vnet_address_prefix }}"
+    tags: 
+      environment: "QA"
+      App: Kubernetes
+  register: vnet
+
+
+- name: create subnet
+  azure.azcollection.azure_rm_subnet:
+    resource_group: "{{ resource_group }}"
+    name: "{{ subnet_name }}"
+    address_prefix_cidr: "{{ subnet_address_prefix }}"
+    virtual_network_name: "{{ vnet_name }}"
+    security_group: "{{ nsg_name }}"
+    tags: 
+      environment: "QA"
+      App: Kubernetes
+  register: subnet
