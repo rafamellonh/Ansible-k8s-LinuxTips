@@ -13,7 +13,7 @@
         priority: 1000
         direction: Inbound    
     tags: 
-      environment: "QA"
+      Environment: "QA"
       App: Kubernetes        
   register: nsg
 
@@ -23,7 +23,7 @@
     name: "{{ vnet_name }}"
     address_prefixes: "{{ vnet_address_prefix }}"
     tags: 
-      environment: "QA"
+      Environment: "QA"
       App: Kubernetes
   register: vnet
 
@@ -35,7 +35,4 @@
     address_prefix_cidr: "{{ subnet_address_prefix }}"
     virtual_network_name: "{{ vnet_name }}"
     security_group: "{{ nsg_name }}"
-    tags: 
-      environment: "QA"
-      App: Kubernetes
   register: subnet
