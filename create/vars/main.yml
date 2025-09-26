@@ -1,0 +1,27 @@
+---
+# vars file for create
+
+resource_group : "rg-k8s-cluster"
+location : "eastus"
+nsg_name : "nsg-k8s-cluster"
+vnet_name : "vnet-k8s-cluster"
+vnet_address_prefix : "192.168.0.0/16"
+subnet_name : "subnet-k8s-cluster"
+subnet_address_prefix : "192.168.1.0/24"
+
+#User
+admin_user : "azureuser"
+admin_password : "YourPassword123!"
+
+#VMs config
+size_instances : "Standard_B2s"
+os_image_offer : "ubuntu-24_04-lts"
+os_image_publisher : "Canonical"
+os_image_sku : "server"
+managed_disk_type : "StandardSSD_LRS"
+
+#LOOP VMS
+vm_ids:
+  - 01
+  - 02    
+  - 03

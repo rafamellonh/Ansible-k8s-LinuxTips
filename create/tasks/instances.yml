@@ -1,0 +1,16 @@
+- name: Create instances
+  azure.azcollection.azure_rm_virtualmachine:
+    resource_group: "{{ resource_group }}"
+    name: "instance_{{ item }}"
+    vm_size: "{{ size_instances }}"
+    admin_username: "{{ admin_user }}"
+    admin_password: "{{ admin_password }}"
+    network_interface_names: "nic_{{ item }}"
+    image:
+      offer: "{{ os_image_offer }}"
+      publisher: "{{ os_image_publisher }}"
+      sku: "{{ os_image_sku }}"
+      version: latest
+    managed_disk_type: "{{ managed_disk_type }}"
+  register: vm
+  loop: "{{ vm_ids }}"
