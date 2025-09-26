@@ -1,7 +1,0 @@
----
-# tasks file for create
-- name: Import resource_group
-  include_tasks: resource_group.yml
-
-- name: Import network
-  include_tasks: network.yml  
