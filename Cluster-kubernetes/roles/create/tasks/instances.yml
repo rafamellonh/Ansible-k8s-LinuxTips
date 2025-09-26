@@ -1,3 +1,14 @@
+- name: Create Network interface
+  azure.azcollection.azure_rm_networkinterface:
+    resource_group: "{{ resource_group }}"
+    name: "nic_{{ item }}"
+    virtual_network: "{{ vnet_name }}"
+    subnet: "{{ subnet_name }}"
+    security_group: "{{ nsg_name }}"
+    assign_public_ip: yes
+  register: nic
+  loop: "{{ vm_ids }}"
+
 - name: Create instances
   azure.azcollection.azure_rm_virtualmachine:
     resource_group: "{{ resource_group }}"
