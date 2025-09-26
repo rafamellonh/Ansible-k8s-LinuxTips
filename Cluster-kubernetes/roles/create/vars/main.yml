@@ -25,3 +25,6 @@ vm_ids:
   - 01
   - 02    
   - 03
+
+#Random suffix for DNS
+random_suffix: 001

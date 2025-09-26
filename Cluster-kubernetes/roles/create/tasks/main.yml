@@ -1,10 +1,18 @@
----
-# tasks file for create
 - name: Import resource_group
   include_tasks: resource_group.yml
+  
 
 - name: Import network
   include_tasks: network.yml  
+  tags: 
+    - network
 
+- name: Import Public IP
+  include_tasks: public_ip.yml
+  tags: 
+    - pip
+  
 - name: Import instances
   include_tasks: instances.yml
+  tags: 
+    - instances

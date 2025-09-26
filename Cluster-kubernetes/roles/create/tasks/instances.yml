@@ -2,10 +2,13 @@
   azure.azcollection.azure_rm_networkinterface:
     resource_group: "{{ resource_group }}"
     name: "nic_{{ item }}"
-    virtual_network: "{{ vnet_name }}"
     subnet: "{{ subnet_name }}"
     security_group: "{{ nsg_name }}"
-    assign_public_ip: yes
+    ip_configurations:
+      - name: "ipconfig{{ item }}"
+        public_ip_address_name: "public_ip_{{ item }}"
+        private_ip_address_version: IPv4
+        private_ip_allocation_method: Dynamic
   register: nic
   loop: "{{ vm_ids }}"
 
@@ -16,7 +19,7 @@
     vm_size: "{{ size_instances }}"
     admin_username: "{{ admin_user }}"
     admin_password: "{{ admin_password }}"
-    network_interface_names: "nic_{{ item }}"
+    network_interface_name: "nic_{{ item }}"
     image:
       offer: "{{ os_image_offer }}"
       publisher: "{{ os_image_publisher }}"
