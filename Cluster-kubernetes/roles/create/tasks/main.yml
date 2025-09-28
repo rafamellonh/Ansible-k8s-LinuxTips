@@ -12,6 +12,11 @@
   tags: 
     - pip
   
+- name: Import ssh-key
+  include_tasks: ssh-key.yml
+  tags: 
+    - ssh-key
+
 - name: Import instances
   include_tasks: instances.yml
   tags: 

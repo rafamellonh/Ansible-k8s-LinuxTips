@@ -22,7 +22,12 @@
     name: "instance-{{ item }}"
     vm_size: "{{ size_instances }}"
     admin_username: "{{ admin_user }}"
-    admin_password: "{{ admin_password }}"
+    #admin_password: "{{ admin_password }}"
+    ssh_password_enabled: false
+    ssh_public_keys:
+      - path: /home/{{ admin_user }}/.ssh/authorized_keys
+        #key_data: "{{ lookup('file', ssh_public_key_path) }}" 
+        key_data: "{{ ssh_key_private_info.state.public_key }}"
     network_interfaces: "nic_{{ item }}"
     image:
       offer: "{{ os_image_offer }}"
@@ -51,7 +56,7 @@
     path: ./hosts
     insertafter: "[kubernetes]" 
     regexp: '^instance_{{ item.item }}\s'
-    line: 'instance-{{ item.item }} ansible_host={{ item.publicipaddresses[0].ip_address  }} ansible_user={{ admin_user }} ansible_password={{ admin_password }}'
+    line: 'instance-{{ item.item }} ansible_host={{ item.publicipaddresses[0].ip_address  }} ssh_private_key_file={{ ssh_private_key_path }}'
   loop: "{{ public_ip_info.results }}"
   #when: vm is changed
 

@@ -1,0 +1,20 @@
+- name: Create a SSH key pair
+  delegate_to: localhost
+  azure.azcollection.azure_rm_sshpublickey:
+    resource_group: "{{ resource_group }}"
+    location: "{{ location }}"
+    name: "{{ ssh_key_name }}"
+    tags: "{{ tags_kube }}"
+  register: ssh_key_private_info
+
+- name: Save the private key to a file
+  delegate_to: localhost
+  copy:
+    dest: "{{ ssh_private_key_path }}"
+    content: "{{ ssh_key_private_info.state.private_key}}"
+    mode: '0600'
+
+  when:
+    - ssh_key_private_info is changed
+    - ssh_key_private_info.state is defined
+    - ssh_key_private_info.state.private_key is defined
