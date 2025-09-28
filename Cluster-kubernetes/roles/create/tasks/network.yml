@@ -13,9 +13,7 @@
         access: Allow
         priority: 1000
         direction: Inbound    
-    tags: 
-      Environment: "QA"
-      App: Kubernetes        
+    tags: "{{ tags_kube }}"  
   register: nsg
 
 - name: Create virtual network
@@ -24,9 +22,7 @@
     resource_group: "{{ resource_group }}"
     name: "{{ vnet_name }}"
     address_prefixes: "{{ vnet_address_prefix }}"
-    tags: 
-      Environment: "QA"
-      App: Kubernetes
+    tags: "{{ tags_kube }}"
   register: vnet
 
 

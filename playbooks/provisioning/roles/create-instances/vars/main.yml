@@ -39,3 +39,7 @@ vm_ids:
   - 01
   - 02
   - 03
+
+#Tags
+Environment: "QA" 
+App: Kubernetes

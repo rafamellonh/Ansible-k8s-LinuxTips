@@ -2,7 +2,5 @@
   azure.azcollection.azure_rm_resourcegroup:
     name: "{{ resource_group }}"
     location: "{{ location }}"
-    tags: 
-      environment: "QA"
-      App: Kubernetes
+    tags: "{{ tags_kube }}"
   register: rg

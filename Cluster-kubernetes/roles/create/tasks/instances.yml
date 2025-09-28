@@ -11,6 +11,7 @@
         public_ip_address_name: "public_ip_{{ item }}"
         private_ip_address_version: IPv4
         private_ip_allocation_method: Dynamic
+    tags: "{{ tags_kube }}"
   register: nic
   loop: "{{ vm_ids }}"
 
@@ -29,6 +30,7 @@
       sku: "{{ os_image_sku }}"
       version: latest
     managed_disk_type: "{{ managed_disk_type }}"
+    tags: "{{ tags_kube }}"
   register: vm
   loop: "{{ vm_ids }}"
 
@@ -49,8 +51,8 @@
     path: ./hosts
     insertafter: "[kubernetes]" 
     regexp: '^instance_{{ item.item }}\s'
-    line: 'instance-{{ item }} ansible_host={{ item.public_ip_address }} ansible_user={{ admin_user }} ansible_password={{ admin_password }}'
-  loop: "{{ public_ip }}"
+    line: 'instance-{{ item.item }} ansible_host={{ item.publicipaddresses[0].ip_address  }} ansible_user={{ admin_user }} ansible_password={{ admin_password }}'
+  loop: "{{ public_ip_info.results }}"
   #when: vm is changed
 
 

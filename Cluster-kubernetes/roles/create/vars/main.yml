@@ -28,3 +28,7 @@ vm_ids:
 
 #Random suffix for DNS
 random_suffix: 001
+
+tags_kube:
+  Env: "QA"
+  App: "Kubernetes"

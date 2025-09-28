@@ -5,10 +5,7 @@
     allocation_method: Static
     name: "public_ip_{{ item }}"
     domain_name_label: "k8s-{{ item }}-{{ random_suffix }}"
-    tags: 
-      Environment: "QA"
-      App: Kubernetes
-  register: public_ip
+    tags: "{{ tags_kube }}"
   loop: "{{ vm_ids }}"
 
 - name: Get Public IP info
