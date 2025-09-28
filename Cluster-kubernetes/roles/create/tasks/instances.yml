@@ -1,8 +1,9 @@
 - name: Create Network interface
+  delegate_to: localhost
   azure.azcollection.azure_rm_networkinterface:
     resource_group: "{{ resource_group }}"
     name: "nic_{{ item }}"
-    vne
+    virtual_network: "{{ vnet_name }}"
     subnet: "{{ subnet_name }}"
     security_group: "{{ nsg_name }}"
     ip_configurations:
@@ -14,13 +15,14 @@
   loop: "{{ vm_ids }}"
 
 - name: Create instances
+  delegate_to: localhost
   azure.azcollection.azure_rm_virtualmachine:
     resource_group: "{{ resource_group }}"
-    name: "instance_{{ item }}"
+    name: "instance-{{ item }}"
     vm_size: "{{ size_instances }}"
     admin_username: "{{ admin_user }}"
     admin_password: "{{ admin_password }}"
-    network_interface_name: "nic_{{ item }}"
+    network_interfaces: "nic_{{ item }}"
     image:
       offer: "{{ os_image_offer }}"
       publisher: "{{ os_image_publisher }}"
@@ -29,3 +31,26 @@
     managed_disk_type: "{{ managed_disk_type }}"
   register: vm
   loop: "{{ vm_ids }}"
+
+- name: Add new instances to host group
+  delegate_to: localhost
+  add_host:
+    name: "instance-{{ item }}"
+    groups: k8s_nodes
+    ansible_user: "{{ admin_user }}"
+    ansible_password: "{{ admin_password }}"
+  loop: "{{ vm_ids }}"
+  when: vm is changed
+
+- name: Add new instances to file hosts
+  delegate_to: localhost
+  become: true
+  lineinfile:
+    path: ./hosts
+    insertafter: "[kubernetes]" 
+    regexp: '^instance_{{ item.item }}\s'
+    line: 'instance-{{ item }} ansible_host={{ item.public_ip_address }} ansible_user={{ admin_user }} ansible_password={{ admin_password }}'
+  loop: "{{ public_ip }}"
+  #when: vm is changed
+
+

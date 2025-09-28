@@ -1,4 +1,5 @@
 - name: Create Public IP  
+  delegate_to: localhost
   azure.azcollection.azure_rm_publicipaddress:
     resource_group: "{{ resource_group }}"
     allocation_method: Static
@@ -9,3 +10,16 @@
       App: Kubernetes
   register: public_ip
   loop: "{{ vm_ids }}"
+
+- name: Get Public IP info
+  delegate_to: localhost
+  azure.azcollection.azure_rm_publicipaddress_info:
+    resource_group: "{{ resource_group }}"
+    name: "public_ip_{{ item }}"
+  loop: "{{ vm_ids }}"
+  register: public_ip_info
+
+- name: Display Public IP addresses
+  debug:
+    msg: "{{ item.publicipaddresses[0].ip_address }}"
+  loop: "{{ public_ip_info.results }}"

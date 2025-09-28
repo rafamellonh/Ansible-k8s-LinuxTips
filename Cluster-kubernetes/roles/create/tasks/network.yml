@@ -1,4 +1,5 @@
 - name: Create Network Security Group
+  delegate_to: localhost
   azure.azcollection.azure_rm_securitygroup:
     resource_group: "{{ resource_group }}"
     name: "{{ nsg_name }}"
@@ -18,6 +19,7 @@
   register: nsg
 
 - name: Create virtual network
+  delegate_to: localhost
   azure.azcollection.azure_rm_virtualnetwork:
     resource_group: "{{ resource_group }}"
     name: "{{ vnet_name }}"
@@ -29,6 +31,7 @@
 
 
 - name: create subnet
+  delegate_to: localhost
   azure.azcollection.azure_rm_subnet:
     resource_group: "{{ resource_group }}"
     name: "{{ subnet_name }}"

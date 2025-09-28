@@ -1,4 +1,7 @@
 [local]
 localhost ansible_connection=local ansible_python_interpreter=/home/rafael/venv-ansible/bin/python
 
+instance-1
+instance-2
+instance-3
 [kubernetes]
