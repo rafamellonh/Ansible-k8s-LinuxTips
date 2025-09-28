@@ -2,10 +2,11 @@
   azure.azcollection.azure_rm_networkinterface:
     resource_group: "{{ resource_group }}"
     name: "nic_{{ item }}"
+    vne
     subnet: "{{ subnet_name }}"
     security_group: "{{ nsg_name }}"
     ip_configurations:
-      - name: "ipconfig{{ item }}"
+      - name: "ipconfig_{{ item }}"
         public_ip_address_name: "public_ip_{{ item }}"
         private_ip_address_version: IPv4
         private_ip_allocation_method: Dynamic
