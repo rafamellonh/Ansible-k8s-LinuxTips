@@ -1,3 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for install_k8s
+
+- name: Import install
+  include_tasks: install.yml
+  tags: 
+    - install
