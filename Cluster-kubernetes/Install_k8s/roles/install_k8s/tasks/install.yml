@@ -3,19 +3,22 @@
   tags: 
     - docker
 
-- name: Add apt signing key
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
+- name: Add Kubernetes apt key (Release.key → .gpg)
+  shell: |
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key \
+    | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   
-- name: Add apt repository
+- name: Add Kubernetes apt repository
   apt_repository:
-    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /"
+    filename: kubernetes
     state: present
     
 - name: Install k8s packages
   apt:
-    name: "{{ packages}}"
+    name: "{{ packages }}"
     vars:
       packages:
       - kubelet

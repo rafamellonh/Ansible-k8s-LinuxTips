@@ -1,5 +1,5 @@
 - hosts: all
-  become: true
+  become: yes
   user: azureuser
   gather_facts: no
   pre_tasks:
@@ -9,19 +9,19 @@
     - install_k8s
 
 - hosts: k8s-master
-  become: true
+  become: yes
   user: azureuser
   roles:
     - create-cluster
 
 - hosts: k8s-workers
-  become: true
+  become: yes
   user: azureuser
   roles:
     - join-workers
 
 - hosts: k8s-master
-  become: true
+  become: yes
   user: azureuser
   roles:
     - install-helm
