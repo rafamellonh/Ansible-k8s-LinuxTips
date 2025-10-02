@@ -7,8 +7,8 @@
 #instance-3 ansible_host=40.114.45.176 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
 
 [k8s-master]
-52.170.58.36 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+52.170.203.62 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 
 [k8s-workers]
-40.114.51.228 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
-40.114.45.176 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+13.92.194.175 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+13.92.254.118 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'

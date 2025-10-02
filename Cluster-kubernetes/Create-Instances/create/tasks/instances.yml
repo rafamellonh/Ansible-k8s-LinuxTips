@@ -56,8 +56,13 @@
     path: ./hosts
     insertafter: "[kubernetes]" 
     regexp: '^instance_{{ item.item }}\s'
-    line: 'instance-{{ item.item }} ansible_host={{ item.publicipaddresses[0].ip_address  }} ssh_private_key_file={{ ssh_private_key_path }}'
+    line: 'instance-{{ item.item }} ansible_host={{ item.publicipaddresses[0].ip_address }} ssh_private_key_file={{ ssh_private_key_path }}'
   loop: "{{ public_ip_info.results }}"
   #when: vm is changed
 
-
+- name: Add instance to known_hosts
+  delegate_to: localhost
+  become: true
+  ansible.builtin.shell: ssh-keyscan -H {{ item.publicipaddresses[0].ip_address }} >> ~/.ssh/known_hosts
+  loop: "{{ public_ip_info.results }}" 
+  #when: vm is changed
