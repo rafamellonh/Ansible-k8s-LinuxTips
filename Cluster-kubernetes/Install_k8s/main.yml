@@ -7,6 +7,7 @@
       raw: 'apt -y install python3'
   roles:
     - install_k8s
+  tags: install_k8s
 
 - hosts: k8s-master
   become: yes

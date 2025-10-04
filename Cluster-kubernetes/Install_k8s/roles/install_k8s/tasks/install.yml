@@ -3,6 +3,17 @@
   tags: 
     - docker
 
+- name: Install cri-dockerd
+  apt: 
+    name: cri-dockerd
+    state: present
+
+- name: Active and start cri-dockerd
+  systemd:
+    name: cri-dockerd
+    state: started
+    enabled: true
+
 - name: Add Kubernetes apt key (Release.key → .gpg)
   shell: |
     curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key \

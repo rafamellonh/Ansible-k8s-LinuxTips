@@ -1,3 +1,4 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # vars file for create-cluster
+default_kubernetes_cni_weavenet_manifestUrl: https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
