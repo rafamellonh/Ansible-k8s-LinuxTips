@@ -75,3 +75,34 @@
 
   - name: Mark all k8s packages to hold
     ansible.builtin.command: apt-mark hold kubelet kubeadm kubectl
+
+  - name: Install firewall
+    ansible.builtin.apt:
+      name: ufw
+      state: present
+      update_cache: yes
+
+  - name: Enable UFW
+    community.general.ufw:
+      state: enabled
+      policy: allow
+
+  - name: Enable port 22
+    community.general.ufw:
+      rule: allow
+      port: 22
+    
+  - name: Configure firewall with shell
+    ansible.builtin.shell: |
+      ufw allow 6443/tcp
+      ufw allow 2379:2380/tcp
+      ufw allow 10250/tcp
+      ufw allow 10251/tcp
+      ufw allow 10252/tcp
+      ufw allow 10255/tcp
+      ufw allow 6783/tcp
+      ufw allow 6783/udp
+      ufw allow 6784/udp
+      ufw --force enable
+
+

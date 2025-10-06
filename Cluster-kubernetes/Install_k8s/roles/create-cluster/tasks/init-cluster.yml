@@ -1,31 +1,66 @@
+- name: Install apps
+  ansible.builtin.apt:
+    name: "{{ apps_to_install }}"
+    state: present
+  vars:
+    apps_to_install:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    apt:
+      update_cache: yes
+
+- name: Add GPG
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
+  args:
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
+
+- name: Add Docker repo
+  ansible.builtin.shell: 
+    cmd: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+- name: Install containerd
+  ansible.builtin.apt:
+    name: containerd.io
+    state: present
+    update_cache: yes    
+  
+- name: Configure containerd
+  ansible.builtin.shell:
+    cmd: |
+      containerd config default | sudo tee /etc/containerd/config.toml
+      sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+      systemctl restart containerd
+
+- name: Enable Kubelet
+  ansible.builtin.command: systemctl enable --now kubelet
+
 - name: Reset Cluster
   command: kubeadm reset --force
   register: kubeadmin_init
 
-- name: Initialize the Kubernetes Cluster with kubeadm Init
-  command: >-
-    kubeadm init
-    --pod-network-cidr=10.244.0.0/16
-    --cri-socket=unix:///var/run/containerd/containerd.sock
-  register: kubeadmin_init
+- name: Init Cluster
+  shell: sudo kubeadm init --pod-network-cidr=10.10.0.0/16 --apiserver-advertise-address=192.168.1.4
   args:
     creates: /etc/kubernetes/admin.conf   # evita rodar de novo se já inicializado
 
-- name: Create .kube directory
-  file:
-    path: ~/.kube/
-    state: directory
+- name: Create .kube dir
+  shell: |
+    mkdir -p $HOME/.kube
+    cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
+  args:
+    creates: $HOME/.kube/config
 
-- name: Symbolic the kubectl admin.conf to ./.kube/config
-  file:
-    src: /etc/kubernetes/admin.conf
-    dest: ~/.kube/config
-    state: link
-
-- name: Configure weave network
-  shell: kubectl apply -f {{ default_kubernetes_cni_weavenet_manifestUrl }}
-  register: weavenet_result
-
+- name: Install Weave Net
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+  args:
+    creates: /etc/cni/net.d/10-weave.conflist
+  
 - name: Clsuter Token
   shell: kubeadm token list | cut -d ' ' -f1 | sed -n '2p'
   register: K8S_TOKEN
@@ -34,16 +69,24 @@
   shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
   register: K8S_MASTER_CA_HASH
 
-- name: ADD K8s token and hash to dummy host
+- name: Adicionando o token e o hash em um dummy host
   add_host:
     name: "K8S_TOKEN_HOLDER"
     token: "{{ K8S_TOKEN.stdout }}"
     hash: "{{ K8S_MASTER_CA_HASH.stdout }}"
 
 - name: token
-  debug: 
-    msg: "[Master] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+  debug:
+    msg: "[MASTER] K8S_TOKEN_HOLDER - O token eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
 
 - name: hash
   debug:
-    msg: "[Master] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+    msg: "[MASTER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+
+- name: tmp
+  ansible.builtin.command: kubectl get nodes
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result.stdout_lines

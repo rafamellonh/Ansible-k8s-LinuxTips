@@ -1,0 +1,38 @@
+- name: Install Docker
+  shell: curl -fsSL https://get.docker.com | bash -
+  tags: 
+    - docker
+
+- name: Install cri-dockerd
+  apt: 
+    name: cri-dockerd
+    state: present
+
+- name: Active and start cri-dockerd
+  systemd:
+    name: cri-dockerd
+    state: started
+    enabled: true
+
+- name: Add Kubernetes apt key (Release.key → .gpg)
+  shell: |
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key \
+    | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  
+- name: Add Kubernetes apt repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /"
+    filename: kubernetes
+    state: present
+    
+- name: Install k8s packages
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - kubelet
+    - kubeadm
+    - kubectl
+
