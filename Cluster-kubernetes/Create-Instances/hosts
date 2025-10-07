@@ -2,3 +2,9 @@
 localhost ansible_connection=local ansible_python_interpreter=/home/rafael/venv-ansible/bin/python
 
 [kubernetes]
+<<<<<<< HEAD
+=======
+instance-1 ansible_host=13.92.85.252 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
+instance-2 ansible_host=13.92.82.201 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
+instance-3 ansible_host=13.92.83.233 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
+>>>>>>> 48096062cc11894725cc9a4d80d80cfdefb4ac35
