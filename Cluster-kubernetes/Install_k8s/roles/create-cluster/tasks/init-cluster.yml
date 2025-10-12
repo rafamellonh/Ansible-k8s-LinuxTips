@@ -1,4 +1,4 @@
-- name: Install apps
+- name: install apps
   ansible.builtin.apt:
     name: "{{ apps_to_install }}"
     state: present
@@ -12,89 +12,88 @@
     apt:
       update_cache: yes
 
-- name: Add GPG
+- name: add gpg
   ansible.builtin.shell:
-    cmd: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
+    cmd: "curl -fssl https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
   args:
     creates: /usr/share/keyrings/docker-archive-keyring.gpg
 
-- name: Add Docker repo
+- name: add docker repo
   ansible.builtin.shell: 
     cmd: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-- name: Install containerd
+- name: install containerd
   ansible.builtin.apt:
     name: containerd.io
     state: present
     update_cache: yes    
   
-- name: Configure containerd
+- name: configure containerd
   ansible.builtin.shell:
     cmd: |
       containerd config default | sudo tee /etc/containerd/config.toml
       sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
       systemctl restart containerd
 
-- name: Enable Kubelet
+- name: enable kubelet
   ansible.builtin.command: systemctl enable --now kubelet
 
-- name: Reset Cluster
+- name: reset cluster
   command: kubeadm reset --force
   register: kubeadmin_init
 
 
-- name: Init Cluster
+- name: init cluster
   shell: sudo kubeadm init --pod-network-cidr=10.10.0.0/16 --apiserver-advertise-address=192.168.1.4
   args:
     creates: /etc/kubernetes/admin.conf   # evita rodar de novo se já inicializado
 
-- name: Create .kube dir
+- name: create .kube dir
   shell: |
-    mkdir -p $HOME/.kube
-    cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    chown $(id -u):$(id -g) $HOME/.kube/config
+    mkdir -p /root/.kube
+    cp -f /etc/kubernetes/admin.conf /root/.kube/config
+    chown $(id -u):$(id -g) /root/.kube/config
   args:
-    creates: $HOME/.kube/config
-    #sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    #sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    creates: /root/.kube/config
+    #sudo cp -i /etc/kubernetes/admin.conf $home/.kube/config
+    #sudo chown $(id -u):$(id -g) $home/.kube/config
 
-
-- name: Install Weave Net
+- name: install weave net
   shell: |
     kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
   args:
     creates: /etc/cni/net.d/10-weave.conflist
   
-- name: Clsuter Token
+- name: clsuter token
   shell: kubeadm token list | cut -d ' ' -f1 | sed -n '2p'
-  register: K8S_TOKEN
+  register: k8s_token
 
-- name: CA hash
+- name: ca hash
   shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
-  register: K8S_MASTER_CA_HASH
+  register: k8s_master_ca_hash
 
-- name: Adicionando o token e o hash em um dummy host
+- name: adicionando o token e o hash em um dummy host
   add_host:
-    name: "K8S_TOKEN_HOLDER"
-    token: "{{ K8S_TOKEN.stdout }}"
-    hash: "{{ K8S_MASTER_CA_HASH.stdout }}"
+    name: "k8s_token_holder"
+    token: "{{ k8s_token.stdout }}"
+    hash: "{{ k8s_master_ca_hash.stdout }}"
 
 - name: token
   debug:
-    msg: "[MASTER] K8S_TOKEN_HOLDER - O token eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+    msg: "[master] k8s_token_holder - o token eh {{ hostvars['k8s_token_holder']['token'] }}"
 
 - name: hash
   debug:
-    msg: "[MASTER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+    msg: "[master] k8s_token_holder - o hash eh {{ hostvars['k8s_token_holder']['hash'] }}"
 
 - name: debug
   debug:
-    msg: "K8S_TOKEN={{ K8S_TOKEN.stdout }} K8S_MASTER_CA_HASH={{ K8S_MASTER_CA_HASH.stdout }}"
+    msg: "k8s_token={{ k8s_token.stdout }} k8s_master_ca_hash={{ k8s_master_ca_hash.stdout }}"
 
 - name: tmp
   ansible.builtin.command: kubectl get nodes
   register: result
 
-- name: Show result
+- name: show result
   ansible.builtin.debug:
     var: result.stdout_lines
