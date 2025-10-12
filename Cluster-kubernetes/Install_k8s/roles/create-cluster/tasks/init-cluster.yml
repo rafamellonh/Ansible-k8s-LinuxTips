@@ -46,7 +46,7 @@
 - name: init cluster
   shell: sudo kubeadm init --pod-network-cidr=10.10.0.0/16 --apiserver-advertise-address=192.168.1.4
   args:
-    creates: /etc/kubernetes/admin.conf   # evita rodar de novo se já inicializado
+   creates: /etc/kubernetes/admin.conf   # evita rodar de novo se já inicializado
 
 - name: create .kube dir
   shell: |
