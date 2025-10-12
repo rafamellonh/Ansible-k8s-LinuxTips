@@ -11,7 +11,6 @@
       - lsb-release
     apt:
       update_cache: yes
-<<<<<<< HEAD
 
 - name: Add GPG
   ansible.builtin.shell:
@@ -43,36 +42,7 @@
   command: kubeadm reset --force
   register: kubeadmin_init
 
-=======
 
-
-- name: Add GPG
-  ansible.builtin.shell:
-    cmd: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg"
-  args:
-    creates: /usr/share/keyrings/docker-archive-keyring.gpg
-
-- name: Add Docker repo
-  ansible.builtin.shell: 
-    cmd: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-- name: Install containerd
-  ansible.builtin.apt:
-    name: containerd.io
-    state: present
-    update_cache: yes    
-  
-- name: Configure containerd
-  ansible.builtin.shell:
-    cmd: |
-      containerd config default | sudo tee /etc/containerd/config.toml
-      sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
-      systemctl restart containerd
-
-- name: Enable Kubelet
-  ansible.builtin.command: systemctl enable --now kubelet
-
->>>>>>> 48096062cc11894725cc9a4d80d80cfdefb4ac35
 - name: Init Cluster
   shell: sudo kubeadm init --pod-network-cidr=10.10.0.0/16 --apiserver-advertise-address=192.168.1.4
   args:
@@ -81,15 +51,13 @@
 - name: Create .kube dir
   shell: |
     mkdir -p $HOME/.kube
-<<<<<<< HEAD
     cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     chown $(id -u):$(id -g) $HOME/.kube/config
   args:
     creates: $HOME/.kube/config
-=======
-    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    sudo chown $(id -u):$(id -g) $HOME/.kube/config
->>>>>>> 48096062cc11894725cc9a4d80d80cfdefb4ac35
+    #sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    #sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
 
 - name: Install Weave Net
   shell: |
@@ -105,7 +73,6 @@
   shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
   register: K8S_MASTER_CA_HASH
 
-<<<<<<< HEAD
 - name: Adicionando o token e o hash em um dummy host
   add_host:
     name: "K8S_TOKEN_HOLDER"
@@ -119,11 +86,10 @@
 - name: hash
   debug:
     msg: "[MASTER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
-=======
+
 - name: debug
   debug:
     msg: "K8S_TOKEN={{ K8S_TOKEN.stdout }} K8S_MASTER_CA_HASH={{ K8S_MASTER_CA_HASH.stdout }}"
->>>>>>> 48096062cc11894725cc9a4d80d80cfdefb4ac35
 
 - name: tmp
   ansible.builtin.command: kubectl get nodes

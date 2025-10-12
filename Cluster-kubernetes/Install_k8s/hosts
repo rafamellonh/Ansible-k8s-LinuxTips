@@ -8,9 +8,9 @@
 
 [k8s-master]
 
-40.71.173.33 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+52.170.90.29 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 
 [k8s-workers]
-40.121.205.72 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
-40.71.172.164 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+52.170.91.120 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+52.170.93.186 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 
