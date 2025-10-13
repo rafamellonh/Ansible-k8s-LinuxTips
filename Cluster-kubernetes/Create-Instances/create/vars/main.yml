@@ -1,7 +1,7 @@
 ---
 # vars file for create
 
-resource_group : "rg-k8s-cluster-01"
+resource_group : "rg-k8s-cluster"
 location : "eastus"
 nsg_name : "nsg-k8s-cluster"
 vnet_name : "vnet-k8s-cluster"
