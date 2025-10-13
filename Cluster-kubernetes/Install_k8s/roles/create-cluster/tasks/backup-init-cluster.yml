@@ -64,10 +64,10 @@
 - name: reset cluster
   command: kubeadm reset --force
   register: kubeadmin_init
-  #when: force_run | default(false)
+  when: force_run | default(false)
 
 # ============================================================
-#  INICIALIZAÇÃO DO CLUSTER MESTRE E CrIAÇÃO DO TOKEN
+#  INICIALIZAÇÃO DO CLUSTER MESTRE
 # ============================================================
 - name: init cluster
   shell: sudo kubeadm init --pod-network-cidr=10.10.0.0/16 --apiserver-advertise-address=192.168.1.4
@@ -75,38 +75,13 @@
     creates: /etc/kubernetes/admin.conf   # evita rodar novamente se já inicializado
   register: kubeadmin_result
   
-- name: Create fresh join token
-  command: kubeadm token create
-  register: kubeadm_token
-  changed_when: true
-  
-- name: Compute CA cert hash
-  shell: |
-        openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
-        | openssl rsa -pubin -outform der 2>/dev/null \
-        | openssl dgst -sha256 -hex | awk '{print $2}'
-  register: kubeadm_hash
-  changed_when: false
-
-- name: Publish tokem/hasn for worker nodes
-  add_host:
-    name: k8s_token_holder
-    token: "{{ kubeadm_token.stdout | trim}}"
-    hash:  "{{ kubeadm_hash.stdout | trim}}"
-  run_once: true
-  delegate_to: localhost
-
-
-# ============================================================
-#  show token
-# ============================================================
-- name: Show token and hash
-  debug: 
-    msg: "token={{ hostvars['k8s_token_holder'].token }} hash={{ hostvars['k8s_token_holder'].hash }}"
-  run_once: true
-  delegate_to: localhost
-    
-
+#extrair a linha do join (stdout+stderr)
+- name: pegar comando de join (worker) do output do init (se houver)
+  ansible.builtin.set_fact:
+    join_worker_cmd: >-
+      {{ ((kubeadmin_result.stdout | default('')) ~ '\n' ~ (kubeadmin_result.stderr | default('')))
+         | regex_search('kubeadm join\\s+[^\\n]+--discovery-token-ca-cert-hash\\s+sha256:[0-9a-f]+', multiline=True)
+         | default('') }}
 
 # ============================================================
 #  CONFIGURAÇÃO DO KUBECTL PARA O USUÁRIO ROOT
@@ -132,7 +107,49 @@
   args:
     creates: /etc/cni/net.d/10-weave.conflist   # impede reaplicar se já instalado
 
- 
+  
+# ============================================================
+#  OBTÉM TOKEN E HASH PARA ADICIONAR WORKERS AO CLUSTER
+# ============================================================
+- name: clsuter token
+  shell: kubeadm token list | cut -d ' ' -f1 | sed -n '2p'
+  register: k8s_token
+
+- name: ca hash
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: k8s_master_ca_hash
+  args:
+    creates: /etc/kubernetes/pki/ca.crt   # impede rodar se já existir
+
+
+# ============================================================
+#  CRIA UM HOST TEMPORÁRIO PARA COMPARTILHAR TOKEN E HASH
+# ============================================================
+- name: adicionando o token e o hash em um dummy host
+  add_host:
+    name: "k8s_token_holder"
+    token: "{{ k8s_token.stdout }}"
+    hash: "{{ k8s_master_ca_hash.stdout }}"
+    join: "{{ join_worker_cmd }}"
+  run_once: true
+  delegate_to: localhost
+
+
+# ============================================================
+#  MOSTRA OS VALORES DO TOKEN E HASH (DEBUG)
+# ============================================================
+- name: token
+  debug:
+    msg: "[master] k8s_token_holder - o token eh {{ hostvars['k8s_token_holder']['token'] }}"
+
+- name: hash
+  debug:
+    msg: "[master] k8s_token_holder - o hash eh {{ hostvars['k8s_token_holder']['hash'] }}"
+
+- name: debug
+  debug:
+    msg: "k8s_token={{ k8s_token.stdout }} k8s_master_ca_hash={{ k8s_master_ca_hash.stdout }}"
+
 # ============================================================
 #  VERIFICA SE OS NÓS ESTÃO NO CLUSTER
 # ============================================================
@@ -143,5 +160,3 @@
 - name: show result
   ansible.builtin.debug:
     var: result.stdout_lines
-
- 

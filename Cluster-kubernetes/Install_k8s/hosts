@@ -7,10 +7,10 @@
 #instance-3 ansible_host=40.114.45.176 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
 
 [k8s_master]
-40.71.191.208 
+52.170.62.237 
 [k8s-workers]
-40.121.220.157  
-52.168.33.145
+52.170.60.118 
+52.170.135.21
 
 [k8s-workers:vars]
 k8s_master_node_ip=40.71.191.208
@@ -23,4 +23,4 @@ ansible_python_interpreter=/usr/bin/python3
 ansible_ssh_private_key_file=./sshkey-k8s-cluster
 ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 k8s_api_secure_port=6443
-k8s_master_node_ip=192.168.1.4
+k8s_master_node_ip_private=192.168.1.4

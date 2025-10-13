@@ -3,4 +3,9 @@
   remote_user: azureuser
   roles:
     - create-cluster
+
+- hosts: k8s-workers
+  become: yes
+  user: azureuser
+  roles:
     - join-workers
