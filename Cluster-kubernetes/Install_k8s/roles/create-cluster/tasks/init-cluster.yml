@@ -1,19 +1,19 @@
 # ============================================================
 #  INSTALAÇÃO DE PACOTES BÁSICOS NECESSÁRIOS
 # ============================================================
-#- name: install apps
-#  ansible.builtin.apt:
-#    name: "{{ apps_to_install }}"
-#    state: present
-#  vars:
-#    apps_to_install:
-#      - apt-transport-https      # suporte HTTPS para repositórios apt
-#      - ca-certificates          # certificados raiz confiáveis
-#      - curl                     # ferramenta para transferir dados (usada em downloads)
-#      - gnupg                    # manipulação de chaves GPG
-#      - lsb-release           
-#    apt:
-#      update_cache: yes          # atualiza cache apt antes da instalação
+- name: install apps
+  ansible.builtin.apt:
+    name: "{{ apps_to_install }}"
+    state: present
+  vars:
+    apps_to_install:
+      - apt-transport-https      # suporte HTTPS para repositórios apt
+      - ca-certificates          # certificados raiz confiáveis
+      - curl                     # ferramenta para transferir dados (usada em downloads)
+      - gnupg                    # manipulação de chaves GPG
+      - lsb-release           
+    apt:
+      update_cache: yes          # atualiza cache apt antes da instalação
 
 
 # ============================================================
