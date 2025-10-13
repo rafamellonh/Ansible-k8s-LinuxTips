@@ -64,4 +64,3 @@ Cluster-kubernetes/
 
 ---
 
-> **Dica**: Se você já tem o cluster criado, rode apenas `Install_k8s/main.yml` para instalar Helm, Prometheus e Grafana.
