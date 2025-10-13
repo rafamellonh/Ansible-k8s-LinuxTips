@@ -1,19 +1,19 @@
 # ============================================================
 #  INSTALAÇÃO DE PACOTES BÁSICOS NECESSÁRIOS
 # ============================================================
-- name: install apps
-  ansible.builtin.apt:
-    name: "{{ apps_to_install }}"
-    state: present
-  vars:
-    apps_to_install:
-      - apt-transport-https      # suporte HTTPS para repositórios apt
-      - ca-certificates          # certificados raiz confiáveis
-      - curl                     # ferramenta para transferir dados (usada em downloads)
-      - gnupg                    # manipulação de chaves GPG
-      - lsb-release              # informações da distro (usado no repo Docker)
-    apt:
-      update_cache: yes          # atualiza cache apt antes da instalação
+#- name: install apps
+#  ansible.builtin.apt:
+#    name: "{{ apps_to_install }}"
+#    state: present
+#  vars:
+#    apps_to_install:
+#      - apt-transport-https      # suporte HTTPS para repositórios apt
+#      - ca-certificates          # certificados raiz confiáveis
+#      - curl                     # ferramenta para transferir dados (usada em downloads)
+#      - gnupg                    # manipulação de chaves GPG
+#      - lsb-release           
+#    apt:
+#      update_cache: yes          # atualiza cache apt antes da instalação
 
 
 # ============================================================
@@ -64,7 +64,7 @@
 - name: reset cluster
   command: kubeadm reset --force
   register: kubeadmin_init
-
+  when: force_run | default(false)
 
 # ============================================================
 #  INICIALIZAÇÃO DO CLUSTER MESTRE
@@ -72,8 +72,16 @@
 - name: init cluster
   shell: sudo kubeadm init --pod-network-cidr=10.10.0.0/16 --apiserver-advertise-address=192.168.1.4
   args:
-   creates: /etc/kubernetes/admin.conf   # evita rodar novamente se já inicializado
-
+    creates: /etc/kubernetes/admin.conf   # evita rodar novamente se já inicializado
+  register: kubeadmin_result
+  
+#extrair a linha do join (stdout+stderr)
+- name: pegar comando de join (worker) do output do init (se houver)
+  ansible.builtin.set_fact:
+    join_worker_cmd: >-
+      {{ ((kubeadmin_result.stdout | default('')) ~ '\n' ~ (kubeadmin_result.stderr | default('')))
+         | regex_search('kubeadm join\\s+[^\\n]+--discovery-token-ca-cert-hash\\s+sha256:[0-9a-f]+', multiline=True)
+         | default('') }}
 
 # ============================================================
 #  CONFIGURAÇÃO DO KUBECTL PARA O USUÁRIO ROOT
@@ -110,6 +118,8 @@
 - name: ca hash
   shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
   register: k8s_master_ca_hash
+  args:
+    creates: /etc/kubernetes/pki/ca.crt   # impede rodar se já existir
 
 
 # ============================================================
@@ -120,7 +130,7 @@
     name: "k8s_token_holder"
     token: "{{ k8s_token.stdout }}"
     hash: "{{ k8s_master_ca_hash.stdout }}"
-  run_once: true
+    join: "{{ join_worker_cmd }}"
   delegate_to: localhost
 
 
@@ -138,7 +148,6 @@
 - name: debug
   debug:
     msg: "k8s_token={{ k8s_token.stdout }} k8s_master_ca_hash={{ k8s_master_ca_hash.stdout }}"
-
 
 # ============================================================
 #  VERIFICA SE OS NÓS ESTÃO NO CLUSTER

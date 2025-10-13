@@ -6,15 +6,21 @@
 #instance-2 ansible_host=40.114.51.228 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
 #instance-3 ansible_host=40.114.45.176 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
 
-[k8s-master]
-
-52.191.69.215 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o stricthostkeychecking=no -o userknownhostsfile=/dev/null'
-
+[k8s_master]
+40.71.191.208 
 [k8s-workers]
-52.191.72.76  ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o stricthostkeychecking=no -o userknownhostsfile=/dev/null'
-52.191.69.232 ansible_ssh_private_key_file=./sshkey-k8s-cluster ansible_ssh_common_args='-o stricthostkeychecking=no -o userknownhostsfile=/dev/null'
+40.121.220.157  
+52.168.33.145
 
 [k8s-workers:vars]
-k8s_master_node_ip=52.191.69.215
+k8s_master_node_ip=40.71.191.208
 k8s_api_secure_port=6443
 
+[all:vars]
+ansible_user=azureuser
+ansible_become=true
+ansible_python_interpreter=/usr/bin/python3
+ansible_ssh_private_key_file=./sshkey-k8s-cluster
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+k8s_api_secure_port=6443
+k8s_master_node_ip=192.168.1.4

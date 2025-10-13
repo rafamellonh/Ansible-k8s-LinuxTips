@@ -1,0 +1,6 @@
+- hosts: k8s_master
+  become: true
+  remote_user: azureuser
+  roles:
+    - create-cluster
+    - join-workers

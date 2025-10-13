@@ -1,4 +1,4 @@
 --- 
 - name: Create Kubernetes Cluster
-  import_tasks: init-cluster.yml
+  include_tasks: init-cluster.yml
   tags: init-cluster

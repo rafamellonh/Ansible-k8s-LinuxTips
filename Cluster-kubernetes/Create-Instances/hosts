@@ -2,9 +2,6 @@
 localhost ansible_connection=local ansible_python_interpreter=/home/rafael/venv-ansible/bin/python
 
 [kubernetes]
-instance-1 ansible_host=52.190.5.3 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
-instance-2 ansible_host=52.226.78.221 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
-instance-3 ansible_host=52.226.64.135 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
-instance-1 ansible_host=52.191.69.215 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
-instance-2 ansible_host=52.191.72.76 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
-instance-3 ansible_host=52.191.69.232 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
+instance-1 ansible_host=40.71.191.208 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
+instance-2 ansible_host=40.121.220.157 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster
+instance-3 ansible_host=52.168.33.145 ssh_private_key_file=/home/rafael/.ssh/sshkey-k8s-cluster

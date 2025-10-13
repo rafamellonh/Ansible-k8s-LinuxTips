@@ -13,6 +13,14 @@
         access: Allow
         priority: 1000
         direction: Inbound    
+      - name: Allow6643
+        protocol: Tcp
+        destination_port_range: 6443
+        source_address_prefix: "*"
+        source_port_range: "*"
+        access: Allow
+        priority: 1100
+        direction: Inbound      
     tags: "{{ tags_kube }}"  
   register: nsg
 

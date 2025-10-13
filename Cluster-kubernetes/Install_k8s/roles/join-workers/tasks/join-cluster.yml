@@ -4,15 +4,16 @@
 
 - name: hash
   debug:
-    msg: "[master] k8s_token_holder k8s token is {{ hostvars['k8s_token_holder']['hash'] }}"
+    msg: "[master] k8s_token_holder k8s hash is {{ hostvars['k8s_token_holder']['hash'] }}"
 
 - name: "kubeadm reset node cluster config"
   command: kubeadm reset --force
   register: kubeadmin_reset_node
+  #changed_when: "'[preflight]' in kubeadm_reset_node.stdout or kubeadm_reset_node.rc == 0"
 
 - name: "join node to cluster"
   ansible.builtin.shell:
     cmd: |
-      kubeadm join  --token={{ hostvars['k8s_token_holder']['token'] }} \
-      --discovery-token-ca-cert-hash=sha256:{{ hostvars['k8s_token_holder']['hash'] }} \
-      {{ k8s_master_node_ip }}:{{ k8s_api_secure_port }}
+      kubeadm join {{ k8s_master_node_ip }}:{{ k8s_api_secure_port }} \
+      --token {{ hostvars['k8s_token_holder']['token'] }} \
+      --discovery-token-ca-cert-hash sha256:{{ hostvars['k8s_token_holder']['hash'] }}
