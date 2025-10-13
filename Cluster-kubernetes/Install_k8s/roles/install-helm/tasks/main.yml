@@ -1,3 +1,12 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for install-helm
+- name: Include install-helm
+  include_tasks: "install-helm.yml"
+  tags: 
+    - install-helm
+
+- name: Include install-monit-tools
+  include_tasks: "install-monit-tools.yml"
+  tags: 
+    - install-monit-tools

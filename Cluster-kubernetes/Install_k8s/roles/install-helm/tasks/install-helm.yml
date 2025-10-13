@@ -1,0 +1,49 @@
+# ============================================================
+#  INSTALAÇÃO DO HELM 3 (GERENCIADOR DE PACOTES DO KUBERNETES)
+# ============================================================
+
+# Baixa e instala o Helm 3 a partir do script oficial do GitHub.
+# O argumento "creates" impede que a instalação seja repetida caso
+# o binário já exista em /usr/local/bin/helm.
+- name: Install Helm 3
+  become: true
+  ansible.builtin.shell: |
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+  register: helm_install
+  tags:
+    - install-helm
+
+
+# ============================================================
+#  VERIFICA SE O HELM FOI INSTALADO CORRETAMENTE
+# ============================================================
+
+# Executa o comando 'helm version' e armazena o resultado
+# para confirmar a instalação e exibir a versão atual.
+- name: Verify Helm installation
+  ansible.builtin.command: helm version --short
+  register: helm_version
+  changed_when: false
+
+- name: Display Helm version
+  ansible.builtin.debug:
+    msg: "Helm version installed: {{ helm_version.stdout }}"
+
+
+# ============================================================
+#  ADICIONA E ATUALIZA REPOSITÓRIOS DE CHARTS
+# ============================================================
+
+# Adiciona o repositório Bitnami, que contém centenas de charts prontos.
+- name: Add Bitnami Helm repository
+  ansible.builtin.command: >
+    helm repo add bitnami https://charts.bitnami.com/bitnami
+  register: helm_repo_add
+  changed_when: "'has been added' in helm_repo_add.stdout or 'already exists' in helm_repo_add.stdout"
+
+# Atualiza os índices de todos os repositórios Helm configurados.
+- name: Update Helm repositories
+  ansible.builtin.command: helm repo update
+  changed_when: false
