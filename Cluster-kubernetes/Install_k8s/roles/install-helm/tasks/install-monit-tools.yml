@@ -1,0 +1,30 @@
+- name: Ckeck if Prometheus is installed
+  shell: helm list -n monitoring | grep prometheus
+  register: prometheus_status
+  failed_when: false
+  changed_when: false
+
+
+- name: Ckeck if Grafana is installed
+  shell: helm list -n monitoring | grep grafana
+  register: grafana_status
+  failed_when: false
+  changed_when: false
+
+
+- name: Install Prometheus
+  shell: helm install prometheus bitnami/kube-prometheus --namespace monitoring --create-namespace --set alertmanager.persistentVolume.enabled=false,server.persistentVolume.enabled=false
+  register: prometheus_result
+  when: prometheus_status.rc != 0
+  args:
+    executable: /bin/bash
+  changed_when: "'deployed' in prometheus_result.stdout"
+
+- name: Install Grafana
+  shell: helm install grafana grafana/grafana --namespace monitoring  --create-namespace --set adminUser=admin,adminPassword=admin,service.type=NodePort
+  register: grafana_result
+  when: grafana_status.rc != 0
+  args:
+    executable: /bin/bash
+  changed_when: "'deployed' in grafana_result.stdout"
+

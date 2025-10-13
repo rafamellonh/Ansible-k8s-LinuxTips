@@ -38,8 +38,11 @@
 
 # Adiciona o repositório Bitnami, que contém centenas de charts prontos.
 - name: Add Bitnami Helm repository
-  ansible.builtin.command: >
-    helm repo add bitnami https://charts.bitnami.com/bitnami
+  ansible.builtin.shell: |
+    helm repo add bitnami https://charts.bitnami.com/bitnami && \
+    helm repo add grafana https://grafana.github.io/helm-charts && \
+    helm repo update
+    
   register: helm_repo_add
   changed_when: "'has been added' in helm_repo_add.stdout or 'already exists' in helm_repo_add.stdout"
 

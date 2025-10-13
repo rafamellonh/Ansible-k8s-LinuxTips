@@ -9,4 +9,4 @@
 - name: Include install-monit-tools
   include_tasks: "install-monit-tools.yml"
   tags: 
-    - install-monit-tools
+    - install-helm

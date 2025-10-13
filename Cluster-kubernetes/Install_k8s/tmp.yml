@@ -1,11 +1,17 @@
-- hosts: k8s_master
-  become: true
-  remote_user: azureuser
-  roles:
-    - create-cluster
+#- hosts: k8s_master
+#  become: true
+#  remote_user: azureuser
+#  roles:
+#    - create-cluster
 
-- hosts: k8s-workers
+#- hosts: k8s-workers
+#  become: yes
+#  user: azureuser
+#  roles:
+#    - join-workers
+
+- hosts: k8s_master
   become: yes
   user: azureuser
   roles:
-    - join-workers
+    - install-helm

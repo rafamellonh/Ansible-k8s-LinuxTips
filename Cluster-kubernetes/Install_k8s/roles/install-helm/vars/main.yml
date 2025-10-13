@@ -1,3 +1,15 @@
-#SPDX-License-Identifier: MIT-0
----
-# vars file for install-helm
+# Prometheus
+deploy_prometheus: >
+  prometheus bitnami/kube-prometheus
+  --namespace monitoring
+  --create-namespace
+  --version 23.7.0
+  --set alertmanager.persistentVolume.enabled=false,server.persistentVolume.enabled=false
+
+# Grafana
+deploy_grafana: >
+  grafana grafana/grafana
+  --namespace monitoring
+  --create-namespace
+  --version 8.5.13
+  --set adminUser=admin,adminPassword=admin,service.type=NodePort

@@ -1,20 +1,17 @@
 # ============================================================
 #  INSTALAÇÃO DE PACOTES BÁSICOS NECESSÁRIOS
 # ============================================================
-- name: install apps
+
+- name: Ensure required packages are installed
   ansible.builtin.apt:
-    name: "{{ apps_to_install }}"
-    state: present
-  vars:
-    apps_to_install:
+    name:
       - apt-transport-https      # suporte HTTPS para repositórios apt
       - ca-certificates          # certificados raiz confiáveis
-      - curl                     # ferramenta para transferir dados (usada em downloads)
+      - curl                     # ferramenta para transferir dados
       - gnupg                    # manipulação de chaves GPG
-      - lsb-release           
-    apt:
-      update_cache: yes          # atualiza cache apt antes da instalação
-
+      - lsb-release              # informações da versão do Ubuntu
+    state: present
+    update_cache: yes
 
 # ============================================================
 #  ADIÇÃO DA CHAVE GPG DO DOCKER
@@ -32,7 +29,8 @@
 - name: add docker repo
   ansible.builtin.shell: 
     cmd: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
+  args:
+    creates: /etc/apt/sources.list.d/docker.list   # ✅ só roda se o arquivo ainda não existir
 
 # ============================================================
 #  INSTALAÇÃO E CONFIGURAÇÃO DO CONTAINERD
@@ -129,8 +127,8 @@
 - name: install weave net
   shell: |
     kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-  args:
-    creates: /etc/cni/net.d/10-weave.conflist   # impede reaplicar se já instalado
+  #args:
+  #  creates: /etc/cni/net.d/10-weave.conflist   # impede reaplicar se já instalado
 
  
 # ============================================================
