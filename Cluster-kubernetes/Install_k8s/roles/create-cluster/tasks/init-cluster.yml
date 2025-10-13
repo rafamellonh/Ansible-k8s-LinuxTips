@@ -131,6 +131,7 @@
     token: "{{ k8s_token.stdout }}"
     hash: "{{ k8s_master_ca_hash.stdout }}"
     join: "{{ join_worker_cmd }}"
+  run_once: true
   delegate_to: localhost
 
 
